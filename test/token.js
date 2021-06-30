@@ -1,11 +1,11 @@
-const RewardsToken = artifacts.require('../contracts/RewardsToken.sol');
+const Local2Token = artifacts.require('../contracts/Local2Token.sol');
 const Utils = require('./helpers/utils').Utils;
 
-contract('RewardsToken', (accounts) => {
+contract('Local2Token', (accounts) => {
     let tokenInstance;
 
     before(async () => {
-        tokenInstance = await RewardsToken.deployed();
+        tokenInstance = await Local2Token.deployed();
 
         // unfreeze tokens
         await tokenInstance.unfreeze();
@@ -14,7 +14,7 @@ contract('RewardsToken', (accounts) => {
     describe("ERC20-Default functions", async () => {
         it("verify constructors", async () => {
             const tokenName = await tokenInstance.name();
-            assert.equal(tokenName.toString(), "Rewards Cash");
+            assert.equal(tokenName.toString(), "Local2 Cash");
             const tokenSymbol = await tokenInstance.symbol();
             assert.equal(tokenSymbol.toString(), "RWRD");
             const decimals = await tokenInstance.decimals();

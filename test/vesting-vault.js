@@ -1,4 +1,4 @@
-const RewardsToken = artifacts.require('../contracts/RewardsToken.sol');
+const Local2Token = artifacts.require('../contracts/Local2Token.sol');
 const VestingVault = artifacts.require('../contracts/VestingVault.sol');
 const Utils = require('./helpers/utils').Utils;
 const BigNumber = require('bignumber.js');
@@ -12,7 +12,7 @@ contract('VestingVault', (accounts) => {
     let scheduleTimes;
     let sumAmount;
     before(async () => {
-        tokenInstance = await RewardsToken.deployed();
+        tokenInstance = await Local2Token.deployed();
         vestingVaultInstance = await VestingVault.deployed();
 
         // unfreeze tokens
