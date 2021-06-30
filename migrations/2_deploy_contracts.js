@@ -1,9 +1,7 @@
-const RewardsToken = artifacts.require('RewardsToken');
-const RewardsTokenDistribution = artifacts.require('RewardsTokenDistribution');
+const Local2Token = artifacts.require('Local2Token');
+const Local2TokenDistribution = artifacts.require('Local2TokenDistribution');
 const VestingVault = artifacts.require('VestingVault');
-const dotenv = require('dotenv');
 const Web3 = require('web3');
-dotenv.config();
 
 module.exports = function (deployer, network) {
     if (network === 'remote') {
@@ -22,15 +20,15 @@ module.exports = function (deployer, network) {
         web3.personal.unlockAccount(web3.eth.accounts[0], process.env.PASSWORD);
     }
 
-    deployer.deploy(RewardsToken).then(() => {
+    deployer.deploy(Local2Token).then(() => {
         console.log('--------------------------------------------------------');
-        console.log('[RewardsToken] contract deployed: ', RewardsToken.address);
-        return deployer.deploy(VestingVault, RewardsToken.address).then(() => {
+        console.log('[Local2Token] contract deployed: ', Local2Token.address);
+        return deployer.deploy(VestingVault, Local2Token.address).then(() => {
             console.log('--------------------------------------------------------');
-            console.log('[VestingVault] contract deployed: ', VestingVault.address);
-            return deployer.deploy(RewardsTokenDistribution, RewardsToken.address, VestingVault.address).then(() => {
+            console.log('[VestingVault] contract deployed: ', Local2Token.address);
+            return deployer.deploy(Local2TokenDistribution, Local2Token.address, VestingVault.address).then(() => {
                 console.log('--------------------------------------------------------');
-                console.log('[RewardsTokenDistribution] contract deployed: ', RewardsTokenDistribution.address);
+                console.log('[Local2TokenDistribution] contract deployed: ', Local2TokenDistribution.address);
             });
         });
     });

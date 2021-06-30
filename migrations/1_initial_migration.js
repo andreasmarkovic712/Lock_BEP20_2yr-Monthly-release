@@ -1,7 +1,5 @@
 const Migrations = artifacts.require("Migrations");
-const dotenv = require('dotenv');
 const Web3 = require('web3');
-dotenv.config();
 
 module.exports = function(deployer, network) {
   if (network === 'remote') {

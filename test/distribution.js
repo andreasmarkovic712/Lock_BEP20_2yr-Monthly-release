@@ -1,10 +1,10 @@
-const RewardsToken = artifacts.require('../contracts/RewardsToken.sol');
+const Local2Token = artifacts.require('../contracts/Local2Token.sol');
 const VestingVault = artifacts.require('../contracts/VestingVault.sol');
-const RewardsTokenDistribution = artifacts.require('../contracts/RewardsTokenDistribution.sol');
+const Local2TokenDistribution = artifacts.require('../contracts/Local2TokenDistribution.sol');
 const Utils = require('./helpers/utils').Utils;
 const BigNumber = require('bignumber.js');
 
-contract('RewardsTokenDistribution', (accounts) => {
+contract('Local2TokenDistribution', (accounts) => {
     let tokenInstance;
     let vestingVaultInstance;
     let tokenDistributionInstance;
@@ -14,9 +14,9 @@ contract('RewardsTokenDistribution', (accounts) => {
     let scheduleTimes;
     let sumAmount;
     before(async () => {
-        tokenInstance = await RewardsToken.deployed();
+        tokenInstance = await Local2Token.deployed();
         vestingVaultInstance = await VestingVault.deployed();
-        tokenDistributionInstance = await RewardsTokenDistribution.deployed();
+        tokenDistributionInstance = await Local2TokenDistribution.deployed();
 
         // unfreeze tokens
         await tokenInstance.unfreeze();
