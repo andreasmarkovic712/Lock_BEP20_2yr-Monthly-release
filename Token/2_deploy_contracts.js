@@ -1,6 +1,6 @@
-// const LocalToken = artifacts.require('LocalToken');
+const LocalToken = artifacts.require('LocalToken');
 // const LocalTokenDistribution = artifacts.require('LocalTokenDistribution');
-const VestingVault = artifacts.require('VestingVault');
+// const VestingVault = artifacts.require('VestingVault');
 const Web3 = require('web3');
 
 module.exports = function (deployer, network) {
@@ -20,12 +20,16 @@ module.exports = function (deployer, network) {
         web3.personal.unlockAccount(web3.eth.accounts[0], process.env.PASSWORD);
     }
 
-    deployer.deploy(VestingVault, '0xB5724B53eb7aC074a91Ef80bf2af30D8DA6424D2').then(() => {
+    deployer.deploy(LocalToken).then(() => {
         console.log('--------------------------------------------------------');
-        console.log('[VestingVault] contract deployed: ', LocalToken.address);
-        // return deployer.deploy(LocalTokenDistribution, LocalToken.address, VestingVault.address).then(() => {
-        //     console.log('--------------------------------------------------------');
-        //     console.log('[LocalTokenDistribution] contract deployed: ', LocalTokenDistribution.address);
+        console.log('[LocalToken] contract deployed: ', LocalToken.address);
+        return deployer.deploy(VestingVault, LocalToken.address).then(() => {
+            console.log('--------------------------------------------------------');
+            console.log('[VestingVault] contract deployed: ', LocalToken.address);
+            return deployer.deploy(LocalTokenDistribution, LocalToken.address, VestingVault.address).then(() => {
+                console.log('--------------------------------------------------------');
+                console.log('[LocalTokenDistribution] contract deployed: ', LocalTokenDistribution.address);
+            });
         // });
     });
 };

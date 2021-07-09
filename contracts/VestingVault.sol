@@ -1,6 +1,23 @@
 pragma solidity 0.5.4;
 
-import './Local2Token.sol';
+import "./lib/Ownable.sol";
+import "./lib/SafeMath.sol";
+
+/**
+ * @title ERC20 interface
+ * @dev see https://eips.ethereum.org/EIPS/eip-20
+ */
+interface IERC20 {
+  function totalSupply() external view returns (uint256);
+  function balanceOf(address account) external view returns (uint256);
+  function transfer(address recipient, uint256 amount) external returns (bool);
+  function allowance(address owner, address spender) external view returns (uint256);
+  function approve(address spender, uint256 amount) external returns (bool);
+  function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+  event Transfer(address indexed from, address indexed to, uint256 value);
+  event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
 /**
  * @title Contract that will hold vested tokens;
  * @notice Tokens for vested contributors will be hold in this contract and token holders
@@ -21,7 +38,7 @@ contract VestingVault is Ownable {
         uint transferred;
     }
 
-    Local2Token public token;
+    IERC20 public token;
 
     mapping(address => Grant) public grants;
 
@@ -34,7 +51,6 @@ contract VestingVault is Ownable {
         uint[] _scheduleAmounts, uint _level);
     event NewRelease(address _holder, uint _amount);
     event WithdrawAll(uint _amount);
-    event BurnTokens(uint _amount);
     event LockedVault();
 
     modifier isOpen() {
@@ -42,11 +58,19 @@ contract VestingVault is Ownable {
         _;
     }
 
-    constructor (Local2Token _token) public {
+    constructor (address _token) public {
         require(address(_token) != address(0), "Token address should not be zero");
-
-        token = _token;
+        token = IERC20(_token);
         locked = false;
+    }
+
+    /**
+     * @dev updateToken update base token
+     * @notice this will be done by only owner any time
+     */
+    function updateToken(address _token) public onlyOwner {
+        require(address(_token) != address(0), "Token address should not be zero");
+        token = IERC20(_token);
     }
 
     /**
@@ -195,37 +219,6 @@ contract VestingVault is Ownable {
 
         token.transfer(beneficiary, transferable);
         emit NewRelease(beneficiary, transferable);
-    }
-
-    /**
-     * @dev Function to revoke tokens from each Accounts
-     */
-    function revokeTokens(address _from, uint amount) public onlyOwner {
-        // finally transfer all remaining tokens to owner
-        Grant storage grantInfo = grants[_from];
-        require(grantInfo.value > 0, "Grant does not exist");
-
-        uint256 revocable = grantInfo.value.sub(grantInfo.transferred);
-        require(revocable > 0, "There is no remaining balance for this address");
-        require(revocable >= amount, "Revocable balance is insufficient");
-        require(token.balanceOf(address(this)) >= amount, "Contract Balance is insufficient");
-
-        grantInfo.value = grantInfo.value.sub(amount);
-        totalVestedTokens = totalVestedTokens.sub(amount);
-
-        token.burn(amount);
-        emit BurnTokens(amount);
-    }
-
-    /**
-     * @dev Function to burn remaining tokens
-     */
-    function burnRemainingTokens() public onlyOwner {
-        // finally transfer all remaining tokens to owner
-        uint amount = token.balanceOf(address(this));
-
-        token.burn(amount);
-        emit BurnTokens(amount);
     }
 
     /**

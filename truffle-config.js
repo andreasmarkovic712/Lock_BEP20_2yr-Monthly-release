@@ -74,22 +74,36 @@ module.exports = {
       skipDryRun: false     // Skip dry run before migrations? (default: false for public nets )
     },
 
-    // Useful for private networks
-    // private: {
-      // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
-      // network_id: 2111,   // This network is yours, in the cloud.
-      // production: true    // Treats this network as if it was a public net. (default: false)
-    // }
+    
+    testnet: {
+      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      network_id: 97,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    bsc: {
+      provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed.binance.org`),
+      network_id: 56,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+
   },
 
   // Set default mocha options here, use special reporters etc.
   mocha: {
     // timeout: 100000
   },
-  plugins: ['truffle-plugin-verify'],
+  plugins: [
+    'truffle-plugin-verify'
+  ],
+
   api_keys: {
-    etherscan: 'YOUR ETHER SCAN KEY'
+    bscscan: 'XTIU11HTX3HRQ79JFSFTYAG9J4HCHE3FV1'
   },
+
   // Configure your compilers
   compilers: {
     solc: {

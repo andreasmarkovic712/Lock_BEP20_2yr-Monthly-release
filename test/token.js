@@ -14,9 +14,9 @@ contract('Local2Token', (accounts) => {
     describe("ERC20-Default functions", async () => {
         it("verify constructors", async () => {
             const tokenName = await tokenInstance.name();
-            assert.equal(tokenName.toString(), "Local2 Cash");
+            assert.equal(tokenName.toString(), "Local2");
             const tokenSymbol = await tokenInstance.symbol();
-            assert.equal(tokenSymbol.toString(), "RWRD");
+            assert.equal(tokenSymbol.toString(), "Local2");
             const decimals = await tokenInstance.decimals();
             assert.strictEqual(decimals.toNumber(), 18);
             await tokenInstance.mint(accounts[0], 10000);
