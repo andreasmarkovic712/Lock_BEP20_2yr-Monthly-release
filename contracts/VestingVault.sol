@@ -139,7 +139,6 @@ contract VestingVault is Ownable {
             });
 
         vestedAddresses.push(_to);
-        totalVestedTokens = totalVestedTokens.add(_value);
 
         emit NewGrant(_to, _value, _start, _duration, _cliff, _scheduleTimes, _scheduleValues, _level);
         return _value;
@@ -200,6 +199,29 @@ contract VestingVault is Ownable {
 
     /**
      * @dev Claim vested token
+     * @param _beneficiary address that should get the available token
+     * @notice this will be eligible after vesting start + cliff or schedule times
+     */
+    function claim(address _beneficiary) public {
+        address beneficiary = _beneficiary;
+        Grant storage grantInfo = grants[beneficiary];
+        require(grantInfo.value > 0, "Grant does not exist");
+
+        uint256 vested = calculateTransferableTokens(grantInfo, now);
+        require(vested > 0, "There is no vested tokens");
+
+        uint256 transferable = vested.sub(grantInfo.transferred);
+        require(transferable > 0, "There is no remaining balance for this address");
+        require(token.balanceOf(address(this)) >= transferable, "Contract Balance is insufficient");
+
+        grantInfo.transferred = grantInfo.transferred.add(transferable);
+
+        token.transfer(beneficiary, transferable);
+        emit NewRelease(beneficiary, transferable);
+    }
+
+    /**
+     * @dev Claim vested token
      * @notice this will be eligible after vesting start + cliff or schedule times
      */
     function claim() public {
@@ -215,10 +237,48 @@ contract VestingVault is Ownable {
         require(token.balanceOf(address(this)) >= transferable, "Contract Balance is insufficient");
 
         grantInfo.transferred = grantInfo.transferred.add(transferable);
-        totalVestedTokens = totalVestedTokens.sub(transferable);
 
         token.transfer(beneficiary, transferable);
         emit NewRelease(beneficiary, transferable);
+    }
+
+    /**
+     * @dev Claim all vested tokens for all users by an owner
+     * @notice this will be eligible after vesting start + cliff or schedule times
+     */
+    function claimAllByOwner(address[] memory _vestedAddresses) public onlyOwner {
+        require(_vestedAddresses.length > 0, "Empty vested addresses");
+
+        uint256 totalTransferable = 0;
+
+        for (uint i = 0; i < _vestedAddresses.length; i++) {
+            Grant storage grantInfo = grants[_vestedAddresses[i]];
+            require(grantInfo.value > 0, "Grant does not exist");
+
+            uint256 vested = calculateTransferableTokens(grantInfo, now);
+            require(vested > 0, "There is no vested tokens");
+
+            uint256 transferable = vested.sub(grantInfo.transferred);
+            require(transferable > 0, "There is no remaining balance for this address");
+        }
+
+        require(token.balanceOf(address(this)) >= totalTransferable, "Contract Balance is insufficient");
+
+        for (uint i = 0; i < _vestedAddresses.length; i++) {
+            Grant storage grantInfo = grants[_vestedAddresses[i]];
+            require(grantInfo.value > 0, "Grant does not exist");
+            
+            uint256 vested = calculateTransferableTokens(grantInfo, now);
+            require(vested > 0, "There is no vested tokens");
+            
+            uint256 transferable = vested.sub(grantInfo.transferred);
+            require(transferable > 0, "There is no remaining balance for this address");
+            
+            grantInfo.transferred = grantInfo.transferred.add(transferable);
+
+            token.transfer(_vestedAddresses[i], transferable);
+            emit NewRelease(_vestedAddresses[i], transferable);
+        }
     }
 
     /**
